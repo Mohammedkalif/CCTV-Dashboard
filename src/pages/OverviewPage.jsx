@@ -2,8 +2,10 @@ import MetricCard from "../components/MetricCard.jsx";
 import { ICONS } from "../components/Icon.jsx";
 import { S } from "../styles/styles.js";
 import { VENUES } from "../data/mockData.js";
+import { useOutletContext } from "react-router-dom";
 
-export default function OverviewPage({ logs }) {
+export default function OverviewPage() {
+  const { logs } = useOutletContext();
   const total     = VENUES.reduce((a, v) => a + v.authorized + v.unauthorized + v.unknown, 0);
   const totalAuth = VENUES.reduce((a, v) => a + v.authorized, 0);
   const totalUnauth = VENUES.reduce((a, v) => a + v.unauthorized, 0);
@@ -20,10 +22,10 @@ export default function OverviewPage({ logs }) {
 
       {/* Metric cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
-        <MetricCard label="Total Detections" value={total.toLocaleString()} sub="Today" icon={ICONS.users} />
-        <MetricCard label="Authorized"        value={totalAuth.toLocaleString()} sub={`${Math.round(totalAuth / total * 100)}% of total`} color="#2e7d32" icon={ICONS.shield} />
-        <MetricCard label="Unauthorized"      value={totalUnauth.toLocaleString()} sub="Flagged" color="#c62828" icon={ICONS.alert} />
-        <MetricCard label="Active Cameras"    value="4 / 4" sub="All online" color="#1565c0" icon={ICONS.camera} />
+        <MetricCard label="Total Detections" value={total.toLocaleString()} sub="Today" icon={ICONS.users} color="#0F3460" />
+        <MetricCard label="Authorized"        value={totalAuth.toLocaleString()} sub={`${Math.round(totalAuth / total * 100)}% of total`} color="#10B981" icon={ICONS.shield} />
+        <MetricCard label="Unauthorized"      value={totalUnauth.toLocaleString()} sub="Flagged" color="#DC2626" icon={ICONS.alert} />
+        <MetricCard label="Active Cameras"    value="4 / 4" sub="All online" color="#0D47A1" icon={ICONS.camera} />
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
@@ -41,21 +43,21 @@ export default function OverviewPage({ logs }) {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                     <div>
                       <span style={{ fontSize: 14, fontWeight: 500 }}>{v.name}</span>
-                      <span style={{ fontSize: 11, color: "#aaa", marginLeft: 8 }}>{v.camera}</span>
+                      <span style={{ fontSize: 11, color: "#9CA3AF", marginLeft: 8 }}>{v.camera}</span>
                     </div>
-                    <div style={{ fontSize: 12, color: "#888" }}>{tot} detected</div>
+                    <div style={{ fontSize: 12, color: "#6B7280" }}>{tot} detected</div>
                   </div>
                   <div style={S.barBg}>
                     <div style={{ height: 6, borderRadius: 3, display: "flex", overflow: "hidden" }}>
-                      <div style={{ width: `${authPct}%`, background: "#4caf50" }} />
-                      <div style={{ width: `${unPct}%`,  background: "#ef5350" }} />
-                      <div style={{ width: `${ukPct}%`,  background: "#ffb300" }} />
+                      <div style={{ width: `${authPct}%`, background: "#10B981" }} />
+                      <div style={{ width: `${unPct}%`,  background: "#DC2626" }} />
+                      <div style={{ width: `${ukPct}%`,  background: "#F59E0B" }} />
                     </div>
                   </div>
-                  <div style={{ display: "flex", gap: 12, fontSize: 11, color: "#888", marginTop: 4 }}>
-                    <span style={{ color: "#2e7d32" }}>✓ {v.authorized} auth</span>
-                    <span style={{ color: "#c62828" }}>✗ {v.unauthorized} unauth</span>
-                    <span style={{ color: "#e65100" }}>? {v.unknown} unknown</span>
+                  <div style={{ display: "flex", gap: 12, fontSize: 11, color: "#6B7280", marginTop: 4 }}>
+                    <span style={{ color: "#059669" }}>✓ {v.authorized} auth</span>
+                    <span style={{ color: "#991B1B" }}>✗ {v.unauthorized} unauth</span>
+                    <span style={{ color: "#92400E" }}>? {v.unknown} unknown</span>
                   </div>
                 </div>
               );
@@ -79,15 +81,15 @@ export default function OverviewPage({ logs }) {
                 <div style={{
                   width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
                   background:
-                    log.type === "authorized"   ? "#e8f5e9"
-                    : log.type === "unauthorized" ? "#fdecea"
-                    : "#fff8e1",
+                    log.type === "authorized"   ? "#D1FAE5"
+                    : log.type === "unauthorized" ? "#FEE2E2"
+                    : "#FEF3C7",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 12, fontWeight: 600,
                   color:
-                    log.type === "authorized"   ? "#2e7d32"
-                    : log.type === "unauthorized" ? "#c62828"
-                    : "#e65100",
+                    log.type === "authorized"   ? "#059669"
+                    : log.type === "unauthorized" ? "#991B1B"
+                    : "#92400E",
                 }}>
                   {log.name[0]}
                 </div>
@@ -96,12 +98,12 @@ export default function OverviewPage({ logs }) {
                   <div style={{ fontSize: 13, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {log.name}
                   </div>
-                  <div style={{ fontSize: 11, color: "#aaa" }}>{log.roll} · {log.venue}</div>
+                  <div style={{ fontSize: 11, color: "#9CA3AF" }}>{log.roll} · {log.venue}</div>
                 </div>
 
                 <div style={{ textAlign: "right", flexShrink: 0 }}>
                   <span style={S.badge(log.type)}>{log.type}</span>
-                  <div style={{ fontSize: 11, color: "#bbb", marginTop: 2 }}>{log.time}</div>
+                  <div style={{ fontSize: 11, color: "#D1D5DB", marginTop: 2 }}>{log.time}</div>
                 </div>
               </div>
             ))}

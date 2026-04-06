@@ -3,14 +3,14 @@ export const S = {
   app: {
     fontFamily: "'DM Sans', sans-serif",
     minHeight: "100vh",
-    background: "#f7f6f3",
-    color: "#1a1a1a",
+    background: "#F8F9FB",
+    color: "#2C3E50",
   },
   sidebar: {
     width: 220,
     minHeight: "100vh",
-    background: "#fff",
-    borderRight: "1px solid #e8e5e0",
+    background: "#0F3460",
+    borderRight: "1px solid #0D2847",
     display: "flex",
     flexDirection: "column",
     position: "fixed",
@@ -26,7 +26,7 @@ export const S = {
   },
   topbar: {
     background: "#fff",
-    borderBottom: "1px solid #e8e5e0",
+    borderBottom: "1px solid #E5E7EB",
     padding: "0 28px",
     height: 56,
     display: "flex",
@@ -35,6 +35,7 @@ export const S = {
     position: "sticky",
     top: 0,
     zIndex: 5,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
   },
   content: {
     padding: "28px 28px 48px",
@@ -45,14 +46,16 @@ export const S = {
   card: {
     background: "#fff",
     borderRadius: 12,
-    border: "1px solid #e8e5e0",
+    border: "1px solid #E5E7EB",
     padding: "20px 22px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
   },
   metricCard: {
     background: "#fff",
     borderRadius: 12,
-    border: "1px solid #e8e5e0",
+    border: "1px solid #E5E7EB",
     padding: "18px 20px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
   },
 
   // Typography
@@ -61,16 +64,17 @@ export const S = {
     fontWeight: 600,
     margin: 0,
     letterSpacing: -0.3,
+    color: "#0F3460",
   },
   h2: {
     fontSize: 16,
-    fontWeight: 500,
+    fontWeight: 600,
     margin: "0 0 16px",
-    color: "#1a1a1a",
+    color: "#2C3E50",
   },
   label: {
     fontSize: 12,
-    color: "#888",
+    color: "#6B7280",
     fontWeight: 500,
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -82,7 +86,7 @@ export const S = {
 
   // Buttons
   btn: {
-    border: "1px solid #e8e5e0",
+    border: "1px solid #E5E7EB",
     background: "#fff",
     borderRadius: 8,
     padding: "7px 14px",
@@ -91,13 +95,13 @@ export const S = {
     display: "flex",
     alignItems: "center",
     gap: 6,
-    color: "#444",
+    color: "#4B5563",
     fontFamily: "inherit",
-    transition: "background 0.15s",
+    transition: "all 0.15s",
   },
   btnPrimary: {
     border: "none",
-    background: "#1a1a1a",
+    background: "#0F3460",
     color: "#fff",
     borderRadius: 8,
     padding: "8px 18px",
@@ -105,6 +109,7 @@ export const S = {
     cursor: "pointer",
     fontFamily: "inherit",
     fontWeight: 500,
+    transition: "all 0.15s",
   },
 
   // Badge
@@ -115,15 +120,15 @@ export const S = {
     padding: "3px 9px",
     borderRadius: 20,
     fontSize: 11,
-    fontWeight: 500,
+    fontWeight: 600,
     background:
-      type === "authorized" ? "#e8f5e9"
-      : type === "unauthorized" ? "#fdecea"
-      : "#fff8e1",
+      type === "authorized" ? "#D1FAE5"
+      : type === "unauthorized" ? "#FEE2E2"
+      : "#FEF3C7",
     color:
-      type === "authorized" ? "#2e7d32"
-      : type === "unauthorized" ? "#c62828"
-      : "#e65100",
+      type === "authorized" ? "#059669"
+      : type === "unauthorized" ? "#991B1B"
+      : "#92400E",
   }),
 
   // Nav item
@@ -137,9 +142,9 @@ export const S = {
     cursor: "pointer",
     fontSize: 13,
     fontWeight: active ? 500 : 400,
-    background: active ? "#f0ede8" : "transparent",
-    color: active ? "#1a1a1a" : "#666",
-    transition: "background 0.15s",
+    background: active ? "rgba(255,255,255,0.15)" : "transparent",
+    color: active ? "#fff" : "#CBD5E1",
+    transition: "all 0.15s",
     border: "none",
     width: "calc(100% - 16px)",
     textAlign: "left",
@@ -152,22 +157,23 @@ export const S = {
     textAlign: "left",
     fontSize: 11,
     fontWeight: 600,
-    color: "#888",
+    color: "#6B7280",
     textTransform: "uppercase",
     letterSpacing: 0.4,
-    borderBottom: "1px solid #f0ede8",
+    borderBottom: "1px solid #E5E7EB",
+    background: "#F9FAFB",
   },
   td: {
     padding: "11px 12px",
-    borderBottom: "1px solid #f7f5f2",
-    color: "#333",
+    borderBottom: "1px solid #E5E7EB",
+    color: "#2C3E50",
   },
 
   // Progress bar
   barBg: {
     height: 6,
     borderRadius: 3,
-    background: "#f0ede8",
+    background: "#E5E7EB",
     overflow: "hidden",
     margin: "6px 0",
   },
