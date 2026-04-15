@@ -1,90 +1,100 @@
 import { NavLink } from "react-router-dom";
 import Icon, { ICONS } from "./Icon";
-import { S } from "../styles/styles";
+import { buildSummary, getRetentionWindow } from "../data/mockData";
 
 const NAV_ITEMS = [
-  { id: "dashboard", label: "Overview",      icon: ICONS.grid,     path: "/" },
-  { id: "live",      label: "Live Feed",     icon: ICONS.camera,   path: "/live" },
-  { id: "analytics", label: "Analytics",    icon: ICONS.activity, path: "/analytics" },
-  { id: "logs",      label: "Detection Log", icon: ICONS.list,     path: "/logs" },
-  { id: "alerts",    label: "Alerts",        icon: ICONS.alert,    path: "/alerts" },
+  { id: "dashboard", label: "Overview", icon: ICONS.grid, path: "/", meta: "Executive snapshot" },
+  { id: "live", label: "Live Feed", icon: ICONS.camera, path: "/live", meta: "Camera wall" },
+  { id: "analytics", label: "Analytics", icon: ICONS.trend, path: "/analytics", meta: "Traffic patterns" },
+  { id: "logs", label: "Detection Log", icon: ICONS.list, path: "/logs", meta: "Search every event" },
+  { id: "alerts", label: "Alerts", icon: ICONS.alert, path: "/alerts", meta: "Priority incidents" },
 ];
 
-export default function Sidebar({ onLogout }) {
+export default function Sidebar({ logs, onLogout }) {
+  const summary = buildSummary(logs);
+
   return (
-    <div style={S.sidebar}>
-      <div style={{ padding: "20px 16px 16px" }}>
-        {/* Brand */}
-        <div style={{
-          display: "flex", alignItems: "center", gap: 10,
-          padding: "0 4px 20px",
-          borderBottom: "1px solid rgba(255,255,255,0.1)",
-        }}>
-          <div style={{
-            width: 30, height: 30,
-            background: "#fff",
-            borderRadius: 8,
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <Icon d={ICONS.camera} size={15} color="#0F3460" />
+    <aside className="sidebar-shell">
+      <div className="sidebar-header">
+        <div className="sidebar-chip">Security Workspace</div>
+
+        <div className="sidebar-brand">
+          <div className="sidebar-brand__mark">
+            <Icon d={ICONS.camera} size={20} color="currentColor" />
           </div>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#fff" }}>INTEC CCTV</div>
-            <div style={{ fontSize: 11, color: "#CBD5E1" }}>v2.0 dashboard</div>
+            <p className="sidebar-brand__kicker">INTEC CCTV</p>
+            <h1 className="sidebar-brand__title">Operations console</h1>
+            <p className="sidebar-brand__copy">A lighter command rail for monitoring, people flow, and incident review.</p>
           </div>
-        </div>
-
-        {/* Nav links */}
-        <div style={{ marginTop: 12 }}>
-          <div style={{ ...S.label, padding: "0 8px", marginBottom: 6, color: "#94A3B8" }}>Navigation</div>
-          {NAV_ITEMS.map(item => (
-            <NavLink
-              key={item.id}
-              to={item.path}
-              end={item.path === "/"}
-              style={({ isActive }) => ({
-                ...S.navItem(isActive),
-                textDecoration: "none",
-              })}
-            >
-              {({ isActive }) => (
-                <>
-                  <Icon
-                    d={item.icon}
-                    size={15}
-                    color={isActive ? "#fff" : "#CBD5E1"}
-                  />
-                  {item.label}
-                </>
-              )}
-            </NavLink>
-          ))}
         </div>
       </div>
 
-      {/* User + logout */}
-      <div style={{ marginTop: "auto", padding: "16px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 8px", marginBottom: 8 }}>
-          <div style={{
-            width: 32, height: 32,
-            borderRadius: "50%",
-            background: "rgba(255,255,255,0.15)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 13, fontWeight: 600, color: "#fff",
-          }}>A</div>
+      <section className="sidebar-highlight">
+        <div className="sidebar-highlight__top">
           <div>
-            <div style={{ fontSize: 13, fontWeight: 500, color: "#fff" }}>Admin</div>
-            <div style={{ fontSize: 11, color: "#CBD5E1" }}>admin@intec.ac.in</div>
+            <p className="eyebrow">24 hour summary</p>
+            <h2>{summary.people} people tracked</h2>
+          </div>
+          <span className="sidebar-status">Stable</span>
+        </div>
+
+        <p className="sidebar-muted">
+          {summary.unauthorized + summary.unknown} flagged detections need review, with peak activity around {summary.peakHour.label}.
+        </p>
+
+        <div className="sidebar-inline-stats">
+          <div className="sidebar-inline-stat">
+            <strong>{summary.total}</strong>
+            <span>Detections</span>
+          </div>
+          <div className="sidebar-inline-stat">
+            <strong>{summary.peakHour.label}</strong>
+            <span>Peak hour</span>
           </div>
         </div>
-        <button
-          onClick={onLogout}
-          style={{ ...S.btn, width: "100%", justifyContent: "center", fontSize: 12, color: "#FCA5A5", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)" }}
-        >
-          <Icon d={ICONS.logout} size={14} color="#FCA5A5" />
+      </section>
+
+      <div className="sidebar-section-label">Navigation</div>
+      <nav className="sidebar-nav" aria-label="Primary navigation">
+        {NAV_ITEMS.map((item) => (
+          <NavLink
+            key={item.id}
+            to={item.path}
+            end={item.path === "/"}
+            className={({ isActive }) => `nav-link${isActive ? " is-active" : ""}`}
+          >
+            <span className="nav-link__icon">
+              <Icon d={item.icon} size={18} color="currentColor" />
+            </span>
+            <span className="nav-link__meta">
+              <strong>{item.label}</strong>
+              <span>{item.meta}</span>
+            </span>
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="sidebar-footer">
+        <div className="sidebar-note">
+          <p className="eyebrow">Retention</p>
+          <h2>{getRetentionWindow(logs)}</h2>
+          <p className="sidebar-muted">History is kept long enough to answer hourly movement questions with context.</p>
+        </div>
+
+        <div className="profile-card">
+          <div className="avatar">A</div>
+          <div>
+            <strong>Admin Control</strong>
+            <div className="sidebar-muted">admin@intec.ac.in</div>
+          </div>
+        </div>
+
+        <button className="logout-button" onClick={onLogout}>
+          <Icon d={ICONS.logout} size={16} color="currentColor" />
           Sign out
         </button>
       </div>
-    </div>
+    </aside>
   );
 }

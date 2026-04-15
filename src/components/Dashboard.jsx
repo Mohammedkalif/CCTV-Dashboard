@@ -1,17 +1,16 @@
 import { Outlet } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import Topbar from "../components/Topbar";
-import { S } from "../styles/styles";
+import Sidebar from "./Sidebar";
+import Topbar from "./Topbar";
 
 export default function Dashboard({ logs, onLogout }) {
   return (
-    <div style={S.app}>
-      <Sidebar onLogout={onLogout} />
-      <div style={S.main}>
+    <div className="app-shell">
+      <Sidebar logs={logs} onLogout={onLogout} />
+      <div className="main-shell">
         <Topbar />
-        <div style={S.content}>
+        <main className="content-shell">
           <Outlet context={{ logs }} />
-        </div>
+        </main>
       </div>
     </div>
   );

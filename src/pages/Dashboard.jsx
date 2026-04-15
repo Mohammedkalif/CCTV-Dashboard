@@ -31,4 +31,8 @@ export default function Dashboard({ page, setPage, logs, onLogout }) {
       </div>
     </div>
   );
+<<<<<<< ours
 }
+=======
+}
+>>>>>>> theirs

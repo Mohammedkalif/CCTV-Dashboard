@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
-import { genLogs, genNewLog } from "./data/mockData.js";
-
+import { genLogs, genNewLog } from "./data/mockData";
 import OverviewPage from "./pages/OverviewPage";
 import LiveFeedPage from "./pages/LiveFeedPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
@@ -12,16 +11,17 @@ import AlertsPage from "./pages/AlertsPage";
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [logs, setLogs] = useState(() => genLogs(40));
+  const [logs, setLogs] = useState(() => genLogs(220));
   const navigate = useNavigate();
 
-  // Simulate live detections every 4 seconds after login
   useEffect(() => {
-    if (!loggedIn) return;
-    const t = setInterval(() => {
-      setLogs(prev => [genNewLog(), ...prev].slice(0, 100));
+    if (!loggedIn) return undefined;
+
+    const intervalId = setInterval(() => {
+      setLogs((previous) => [genNewLog(), ...previous].slice(0, 260));
     }, 4000);
-    return () => clearInterval(t);
+
+    return () => clearInterval(intervalId);
   }, [loggedIn]);
 
   const handleLogin = () => {
@@ -35,36 +35,22 @@ export default function App() {
   };
 
   return (
-    <>
-      <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap"
-        rel="stylesheet"
+    <Routes>
+      <Route
+        path="/login"
+        element={loggedIn ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />}
       />
-      <Routes>
-        <Route
-          path="/login"
-          element={
-            loggedIn ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />
-          }
-        />
-        <Route
-          path="/"
-          element={
-            loggedIn ? (
-              <Dashboard logs={logs} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        >
-          <Route index element={<OverviewPage logs={logs} />} />
-          <Route path="live" element={<LiveFeedPage logs={logs} />} />
-          <Route path="analytics" element={<AnalyticsPage />} />
-          <Route path="logs" element={<LogsPage logs={logs} />} />
-          <Route path="alerts" element={<AlertsPage logs={logs} />} />
-        </Route>
-        <Route path="*" element={<Navigate to={loggedIn ? "/" : "/login"} replace />} />
-      </Routes>
-    </>
+      <Route
+        path="/"
+        element={loggedIn ? <Dashboard logs={logs} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
+      >
+        <Route index element={<OverviewPage />} />
+        <Route path="live" element={<LiveFeedPage />} />
+        <Route path="analytics" element={<AnalyticsPage />} />
+        <Route path="logs" element={<LogsPage />} />
+        <Route path="alerts" element={<AlertsPage />} />
+      </Route>
+      <Route path="*" element={<Navigate to={loggedIn ? "/" : "/login"} replace />} />
+    </Routes>
   );
 }

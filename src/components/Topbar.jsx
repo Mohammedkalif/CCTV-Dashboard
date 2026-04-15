@@ -1,44 +1,61 @@
 import { useLocation } from "react-router-dom";
-import { S } from "../styles/styles";
 
-const PATH_LABELS = {
-  "/": "Overview",
-  "/live": "Live Feed",
-  "/analytics": "Analytics",
-  "/logs": "Detection Log",
-  "/alerts": "Alerts",
+const PATH_META = {
+  "/": {
+    title: "Overview",
+    copy: "A professional command view of detections, camera load, people flow, and operational risk.",
+  },
+  "/live": {
+    title: "Live Feed",
+    copy: "Monitor camera scenes, overlay detections, and track the busiest entrances in real time.",
+  },
+  "/analytics": {
+    title: "Analytics",
+    copy: "Understand hourly traffic, access quality, and how many people appeared in a selected hour window.",
+  },
+  "/logs": {
+    title: "Detection Log",
+    copy: "Search every recognition event with cleaner filters and a table built for quick review.",
+  },
+  "/alerts": {
+    title: "Alerts",
+    copy: "Review unauthorized and unknown detections with incident status, timing, and severity context.",
+  },
 };
 
 export default function Topbar() {
   const { pathname } = useLocation();
-  const label = PATH_LABELS[pathname] || "Dashboard";
+  const meta = PATH_META[pathname] || {
+    title: "Dashboard",
+    copy: "Unified CCTV operations center.",
+  };
+
+  const now = new Date();
+  const formattedDate = now.toLocaleDateString("en-IN", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   return (
-    <div style={S.topbar}>
-      <div style={{ fontSize: 13, color: "#6B7280" }}>
-        <span style={{ color: "#0F3460", fontWeight: 600 }}>INTEC CCTV</span>
-        <span style={{ margin: "0 8px", color: "#D1D5DB" }}>/</span>
-        <span>{label}</span>
+    <header className="topbar-shell">
+      <div>
+        <p className="topbar-kicker">INTEC CCTV / Operations Center</p>
+        <h1 className="topbar-title">{meta.title}</h1>
+        <p className="topbar-copy">{meta.copy}</p>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <div style={{
-          display: "flex", alignItems: "center", gap: 6,
-          fontSize: 12, color: "#059669",
-          background: "#D1FAE5",
-          padding: "4px 10px",
-          borderRadius: 20,
-        }}>
-          <span style={{
-            width: 6, height: 6, borderRadius: "50%",
-            background: "#10B981", display: "inline-block",
-          }} />
+      <div className="topbar-side">
+        <div className="status-chip">
+          <span className="status-dot" />
           System online
         </div>
-        <div style={{ fontSize: 12, color: "#6B7280" }}>
-          {new Date().toLocaleTimeString("en-IN")}
+        <div className="timestamp-card">
+          <span>{formattedDate}</span>
+          <strong>{now.toLocaleTimeString("en-IN")}</strong>
         </div>
       </div>
-    </div>
+    </header>
   );
 }

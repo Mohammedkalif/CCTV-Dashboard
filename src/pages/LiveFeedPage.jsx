@@ -1,166 +1,124 @@
-import { useState, useEffect } from "react";
-import { S } from "../styles/styles";
-import { VENUES } from "../data/mockData";
+import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
+import MetricCard from "../components/MetricCard";
+import { ICONS } from "../components/Icon";
+import { buildVenueStats, formatFullDate } from "../data/mockData";
+
+function getBadgeClass(type) {
+  return `badge badge--${type}`;
+}
 
 export default function LiveFeedPage() {
   const { logs } = useOutletContext();
   const [tick, setTick] = useState(0);
+  const venueStats = buildVenueStats(logs);
+  const totalPeople = venueStats.reduce((sum, venue) => sum + venue.people, 0);
+  const busyVenue = venueStats.reduce((best, venue) => (venue.people > best.people ? venue : best), venueStats[0]);
 
   useEffect(() => {
-    const t = setInterval(() => setTick(x => x + 1), 3000);
-    return () => clearInterval(t);
+    const timerId = setInterval(() => setTick((current) => current + 1), 3000);
+    return () => clearInterval(timerId);
   }, []);
 
   return (
-    <div>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-        <div>
-          <h1 style={S.h1}>Live feed</h1>
-          <p style={{ fontSize: 13, color: "#6B7280", margin: "4px 0 0" }}>
-            All cameras · Auto-refresh every 3s
-          </p>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#10B981" }}>
-          <span style={{
-            width: 8, height: 8, borderRadius: "50%",
-            background: "#10B981", display: "inline-block",
-            boxShadow: "0 0 0 2px #D1FAE5",
-          }} />
-          4 cameras online
-        </div>
-      </div>
+    <div className="page-stack">
+      <section className="metrics-grid">
+        <MetricCard
+          label="Live cameras"
+          value={`${venueStats.length}/4`}
+          sub="All streams active"
+          tone="blue"
+          icon={ICONS.camera}
+        />
+        <MetricCard
+          label="People across feeds"
+          value={totalPeople.toLocaleString()}
+          sub="Last 24 hours"
+          tone="emerald"
+          icon={ICONS.users}
+        />
+        <MetricCard
+          label="Busiest zone"
+          value={busyVenue.name}
+          sub={`${busyVenue.people} people observed`}
+          tone="amber"
+          icon={ICONS.building}
+        />
+        <MetricCard
+          label="Flagged events"
+          value={venueStats.reduce((sum, venue) => sum + venue.unauthorized + venue.unknown, 0)}
+          sub="Unauthorized + unknown"
+          tone="rose"
+          icon={ICONS.alert}
+        />
+      </section>
 
-      {/* Camera grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-        {VENUES.map((cam) => {
-          const recent = logs.filter(l => l.venue === cam.name).slice(0, 4);
-          const fps = Math.floor(Math.random() * 5 + 27);
-          const detections = Math.floor(Math.random() * 3) + (tick % 2);
+      <section className="feed-grid">
+        {venueStats.map((venue, index) => {
+          const recentLogs = logs.filter((log) => log.venue === venue.name).slice(0, 3);
+          const detections = Math.max(1, Math.min(3, Math.round((venue.total % 3) + (tick % 2))));
+          const fps = 26 + ((tick + index) % 5);
 
           return (
-            <div key={cam.id} style={S.card}>
-              {/* Fake camera viewport */}
-              <div style={{
-                height: 180,
-                background: "#111",
-                borderRadius: 8,
-                marginBottom: 14,
-                position: "relative",
-                overflow: "hidden",
-              }}>
-                {/* Background gradient */}
-                <div style={{
-                  position: "absolute", inset: 0,
-                  background: "linear-gradient(135deg, #0F2438 0%, #1a3a52 100%)",
-                }} />
-
-                {/* Grid overlay */}
-                <svg style={{ position: "absolute", inset: 0, opacity: 0.06 }} width="100%" height="100%">
-                  <defs>
-                    <pattern id={`g${cam.id}`} width="30" height="30" patternUnits="userSpaceOnUse">
-                      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#fff" strokeWidth="0.5" />
-                    </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill={`url(#g${cam.id})`} />
-                </svg>
-
-                {/* Detection boxes */}
-                {detections > 0 && (
-                  <div style={{
-                    position: "absolute", top: 40, left: 30,
-                    width: 50, height: 70,
-                    border: "1.5px solid #10B981", borderRadius: 2,
-                  }}>
-                    <span style={{
-                      position: "absolute", top: -16, left: 0,
-                      fontSize: 9, color: "#10B981",
-                      fontFamily: "monospace",
-                      background: "rgba(0,0,0,0.6)",
-                      padding: "1px 4px", borderRadius: 2,
-                      whiteSpace: "nowrap",
-                    }}>AUTH 0.94</span>
+            <article key={venue.id} className="feed-card">
+              <div className="card-header" style={{ marginBottom: 18 }}>
+                <div className="camera-meta">
+                  <div className="camera-score camera-score--authorized">{venue.camera.replace("CAM-", "")}</div>
+                  <div>
+                    <strong>{venue.name}</strong>
+                    <span>{venue.location} · {venue.camera}</span>
                   </div>
-                )}
-                {detections > 1 && (
-                  <div style={{
-                    position: "absolute", top: 55, right: 50,
-                    width: 44, height: 62,
-                    border: "1.5px solid #DC2626", borderRadius: 2,
-                  }}>
-                    <span style={{
-                      position: "absolute", top: -16, left: 0,
-                      fontSize: 9, color: "#DC2626",
-                      fontFamily: "monospace",
-                      background: "rgba(0,0,0,0.6)",
-                      padding: "1px 4px", borderRadius: 2,
-                      whiteSpace: "nowrap",
-                    }}>UNAUTH 0.81</span>
-                  </div>
-                )}
+                </div>
+                <span className="pill">{venue.people} people</span>
+              </div>
 
-                {/* HUD — top */}
-                <div style={{
-                  position: "absolute", top: 10, left: 12,
-                  fontSize: 11, fontFamily: "monospace",
-                  color: "#9CA3AF", display: "flex", gap: 16,
-                }}>
-                  <span style={{ color: "#10B981" }}>● REC</span>
-                  <span>{cam.camera}</span>
+              <div className="camera-frame">
+                <div className="camera-hud">
+                  <span>REC LIVE</span>
                   <span>{fps} fps</span>
                 </div>
 
-                {/* HUD — bottom */}
-                <div style={{
-                  position: "absolute", bottom: 10, left: 12,
-                  fontSize: 10, fontFamily: "monospace", color: "#6B7280",
-                }}>
-                  {new Date().toLocaleTimeString("en-IN")} · {cam.location}
+                <div className="camera-box camera-box--authorized" style={{ top: "24%", left: "10%", width: "18%", height: "38%" }}>
+                  <span>AUTH 0.93</span>
                 </div>
-                <div style={{
-                  position: "absolute", bottom: 10, right: 12,
-                  fontSize: 10, color: "#4B5563", fontFamily: "monospace",
-                }}>
-                  {detections} detected
+                {detections > 1 ? (
+                  <div className="camera-box camera-box--unauthorized" style={{ top: "32%", right: "14%", width: "16%", height: "34%" }}>
+                    <span>UNAUTH 0.84</span>
+                  </div>
+                ) : null}
+                {detections > 2 ? (
+                  <div className="camera-box camera-box--unknown" style={{ bottom: "18%", left: "38%", width: "14%", height: "26%" }}>
+                    <span>UNKNOWN 0.44</span>
+                  </div>
+                ) : null}
+
+                <div className="camera-hud-bottom">
+                  <span>{venue.location}</span>
+                  <span>{detections} live detections</span>
                 </div>
               </div>
 
-              {/* Camera info */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 500 }}>{cam.name}</div>
-                  <div style={{ fontSize: 12, color: "#9CA3AF" }}>{cam.location} · {cam.camera}</div>
-                </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <span style={S.badge("authorized")}>{cam.authorized} auth</span>
-                  <span style={S.badge("unauthorized")}>{cam.unauthorized} unauth</span>
-                </div>
+              <div className="pill-row" style={{ marginTop: 18 }}>
+                <span className="badge badge--authorized">{venue.authorized} authorized</span>
+                <span className="badge badge--unauthorized">{venue.unauthorized} unauthorized</span>
+                <span className="badge badge--unknown">{venue.unknown} unknown</span>
               </div>
 
-              {/* Recent detections for this camera */}
-              {recent.length > 0 && (
-                <div>
-                  <div style={{ ...S.label, marginBottom: 6 }}>Recent detections</div>
-                  {recent.map(l => (
-                    <div key={l.id} style={{
-                      display: "flex", alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "5px 0",
-                      borderBottom: "1px solid #E5E7EB",
-                      fontSize: 12,
-                    }}>
-                      <span style={{ fontWeight: 500 }}>{l.roll}</span>
-                      <span style={S.badge(l.type)}>{l.type}</span>
-                      <span style={{ color: "#9CA3AF", fontFamily: "monospace" }}>{l.time}</span>
+              <div className="list-stack" style={{ marginTop: 12 }}>
+                {recentLogs.map((log) => (
+                  <div key={log.id} className="feed-detection">
+                    <div>
+                      <strong>{log.name}</strong>
+                      <div className="mono-text">{log.roll} · {formatFullDate(log.ts)}</div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                    <span className={getBadgeClass(log.type)}>{log.type}</span>
+                  </div>
+                ))}
+              </div>
+            </article>
           );
         })}
-      </div>
+      </section>
     </div>
   );
 }
