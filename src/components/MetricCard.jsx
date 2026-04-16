@@ -1,11 +1,11 @@
 import Icon from "./Icon";
 
 const ICON_COLORS = {
-  slate: "#142033",
-  blue: "#2d5baf",
-  emerald: "#1f9d74",
-  rose: "#cb4d4d",
-  amber: "#c98632",
+  slate:   "#525252",
+  blue:    "#2563eb",
+  emerald: "#16a34a",
+  rose:    "#dc2626",
+  amber:   "#d97706",
 };
 
 export default function MetricCard({ label, value, sub, tone = "slate", icon }) {
@@ -18,7 +18,7 @@ export default function MetricCard({ label, value, sub, tone = "slate", icon }) 
       </div>
       {icon ? (
         <div className="metric-card__icon">
-          <Icon d={icon} size={18} color={ICON_COLORS[tone] || ICON_COLORS.slate} />
+          <Icon d={icon} size={16} color={ICON_COLORS[tone] || ICON_COLORS.slate} />
         </div>
       ) : null}
     </article>

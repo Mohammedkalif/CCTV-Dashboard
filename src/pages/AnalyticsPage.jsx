@@ -19,17 +19,31 @@ import { buildDailyStats, buildHourlyStats, buildSummary, getHourWindowLabel } f
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend, Filler);
 
-const CHART_OPTIONS = {
+const BASE_OPTIONS = {
   responsive: true,
   maintainAspectRatio: false,
+  animation: { duration: 0 },
   plugins: {
     legend: { display: false },
     tooltip: {
-      backgroundColor: "#142033",
+      backgroundColor: "#171717",
       titleColor: "#ffffff",
-      bodyColor: "#dbe5f1",
-      padding: 12,
+      bodyColor: "#a3a3a3",
+      padding: 10,
       displayColors: false,
+      cornerRadius: 6,
+    },
+  },
+  scales: {
+    x: {
+      grid: { display: false },
+      border: { display: false },
+      ticks: { color: "#a3a3a3", font: { size: 11 } },
+    },
+    y: {
+      grid: { color: "#f0f0ef", lineWidth: 1 },
+      border: { display: false, dash: [4, 4] },
+      ticks: { color: "#a3a3a3", font: { size: 11 } },
     },
   },
 };
@@ -43,43 +57,43 @@ export default function AnalyticsPage() {
   const [focus, setFocus] = useState("people");
 
   const hourDetail = hourlyStats[selectedHour];
-  const focusCopy = {
-    overview: "Track the overall detection mix, hourly trend, and the busiest periods across the last 24 hours.",
-    people: "Use this option to answer the key question: how many people were seen in a particular hour window.",
-    risk: "Review how many unauthorized and unknown faces clustered in the selected hour.",
-  };
 
   const hourlyLineData = {
-    labels: hourlyStats.map((hour) => hour.label),
+    labels: hourlyStats.map((h) => h.label),
     datasets: [
       {
         label: "People",
-        data: hourlyStats.map((hour) => hour.people),
-        borderColor: "#2d5baf",
-        backgroundColor: "rgba(45, 91, 175, 0.16)",
+        data: hourlyStats.map((h) => h.people),
+        borderColor: "#171717",
+        backgroundColor: "rgba(23,23,23,0.06)",
         fill: true,
-        tension: 0.34,
-        pointRadius: 4,
-        pointHoverRadius: 5,
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        borderWidth: 1.5,
       },
       {
         label: "Authorized",
-        data: hourlyStats.map((hour) => hour.authorized),
-        borderColor: "#1f9d74",
+        data: hourlyStats.map((h) => h.authorized),
+        borderColor: "#16a34a",
         backgroundColor: "transparent",
         fill: false,
-        tension: 0.34,
-        pointRadius: 3,
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        borderWidth: 1.5,
       },
       {
-        label: "Unauthorized",
-        data: hourlyStats.map((hour) => hour.unauthorized + hour.unknown),
-        borderColor: "#cb4d4d",
+        label: "Flagged",
+        data: hourlyStats.map((h) => h.unauthorized + h.unknown),
+        borderColor: "#dc2626",
         backgroundColor: "transparent",
         fill: false,
-        tension: 0.34,
-        pointRadius: 3,
-        borderDash: [7, 5],
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        borderWidth: 1.5,
+        borderDash: [6, 4],
       },
     ],
   };
@@ -89,45 +103,48 @@ export default function AnalyticsPage() {
     datasets: [
       {
         data: [hourDetail.authorized, hourDetail.unauthorized, hourDetail.unknown],
-        backgroundColor: ["#1f9d74", "#cb4d4d", "#c98632"],
+        backgroundColor: ["#16a34a", "#dc2626", "#d97706"],
         borderWidth: 0,
+        hoverOffset: 4,
       },
     ],
   };
 
   const dailyBarData = {
-    labels: dailyStats.map((day) => day.label),
+    labels: dailyStats.map((d) => d.label),
     datasets: [
       {
         label: "Authorized",
-        data: dailyStats.map((day) => day.authorized),
-        backgroundColor: "#1f9d74",
-        borderRadius: 10,
+        data: dailyStats.map((d) => d.authorized),
+        backgroundColor: "#171717",
+        borderRadius: 4,
+        barPercentage: 0.5,
+        categoryPercentage: 0.7,
       },
       {
         label: "Flagged",
-        data: dailyStats.map((day) => day.unauthorized),
-        backgroundColor: "#cb4d4d",
-        borderRadius: 10,
+        data: dailyStats.map((d) => d.unauthorized),
+        backgroundColor: "#e5e5e4",
+        borderRadius: 4,
+        barPercentage: 0.5,
+        categoryPercentage: 0.7,
       },
     ],
   };
 
   return (
     <div className="page-stack">
-      <section className="card">
-        <div className="toolbar-row">
+      <section className="card" style={{ padding: "14px 18px" }}>
+        <div className="toolbar-row" style={{ alignItems: "center" }}>
           <div>
-            <p className="eyebrow">Analytics controls</p>
-            <h2 className="card-title">Choose what to focus on</h2>
-            <p className="card-copy">{focusCopy[focus]}</p>
+            <p className="eyebrow">Analytics</p>
+            <h2 className="card-title" style={{ marginBottom: 0 }}>Traffic & detection patterns</h2>
           </div>
-
           <div className="pill-row">
             {[
-              ["overview", "Traffic overview"],
-              ["people", "People in hour"],
-              ["risk", "Risk pressure"],
+              ["overview", "Overview"],
+              ["people", "People"],
+              ["risk", "Risk"],
             ].map(([value, label]) => (
               <button
                 key={value}
@@ -151,14 +168,14 @@ export default function AnalyticsPage() {
           icon={ICONS.users}
         />
         <MetricCard
-          label="Authorized in hour"
+          label="Authorized"
           value={hourDetail.authorized.toLocaleString()}
-          sub={`${hourDetail.total} total detections`}
+          sub={`of ${hourDetail.total} total`}
           tone="emerald"
           icon={ICONS.shield}
         />
         <MetricCard
-          label="Flagged in hour"
+          label="Flagged"
           value={(hourDetail.unauthorized + hourDetail.unknown).toLocaleString()}
           sub="Unauthorized + unknown"
           tone="rose"
@@ -170,89 +187,83 @@ export default function AnalyticsPage() {
         <article className="card">
           <div className="card-header">
             <div>
-              <p className="eyebrow">Hourly movement</p>
-              <h2 className="card-title">How many people are in that particular hour?</h2>
-              <p className="card-copy">Select an hour window to compare people volume against authorized and flagged detections.</p>
+              <p className="eyebrow">Hourly traffic</p>
+              <h2 className="card-title">24-hour movement</h2>
             </div>
-
-            <label className="select-field" style={{ minWidth: 210 }}>
-              <span className="mono-text">Hour</span>
-              <select value={selectedHour} onChange={(event) => setSelectedHour(Number(event.target.value))}>
-                {hourlyStats.map((hour) => (
-                  <option key={hour.hour} value={hour.hour}>
-                    {getHourWindowLabel(hour.hour)}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div className="chart-legend">
+                <span className="legend-chip" style={{ color: "#171717" }}>People</span>
+                <span className="legend-chip" style={{ color: "#16a34a" }}>Auth</span>
+                <span className="legend-chip" style={{ color: "#dc2626" }}>Flagged</span>
+              </div>
+              <label className="select-field" style={{ minWidth: 160 }}>
+                <select value={selectedHour} onChange={(e) => setSelectedHour(Number(e.target.value))}>
+                  {hourlyStats.map((h) => (
+                    <option key={h.hour} value={h.hour}>
+                      {getHourWindowLabel(h.hour)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
           </div>
-
-          <div className="chart-legend" style={{ marginTop: 18 }}>
-            <span className="legend-chip" style={{ color: "#2d5baf" }}>People</span>
-            <span className="legend-chip" style={{ color: "#1f9d74" }}>Authorized</span>
-            <span className="legend-chip" style={{ color: "#cb4d4d" }}>Flagged</span>
-          </div>
-
-          <div className="chart-wrap" style={{ marginTop: 20 }}>
-            <Line
-              data={hourlyLineData}
-              options={{
-                ...CHART_OPTIONS,
-                scales: {
-                  x: {
-                    grid: { display: false },
-                    ticks: { color: "#64748b" },
-                  },
-                  y: {
-                    grid: { color: "rgba(20, 32, 51, 0.08)" },
-                    ticks: { color: "#64748b" },
-                  },
-                },
-              }}
-            />
+          <div className="chart-wrap" style={{ marginTop: 16 }}>
+            <Line data={hourlyLineData} options={BASE_OPTIONS} />
           </div>
         </article>
 
         <article className="card">
           <div className="card-header">
             <div>
-              <p className="eyebrow">Selected hour brief</p>
+              <p className="eyebrow">Hour breakdown</p>
               <h2 className="card-title">{getHourWindowLabel(selectedHour)}</h2>
             </div>
             <span className="pill">{hourDetail.people} people</span>
           </div>
 
-          <div className="chart-wrap chart-wrap--compact" style={{ marginTop: 18 }}>
+          <div className="chart-wrap chart-wrap--compact" style={{ marginTop: 16 }}>
             <Doughnut
               data={doughnutData}
               options={{
-                ...CHART_OPTIONS,
-                cutout: "68%",
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 0 },
+                cutout: "72%",
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    backgroundColor: "#171717",
+                    titleColor: "#fff",
+                    bodyColor: "#a3a3a3",
+                    padding: 10,
+                    cornerRadius: 6,
+                  },
+                },
               }}
             />
           </div>
 
-          <div className="list-stack" style={{ marginTop: 18 }}>
+          <div className="list-stack" style={{ marginTop: 14 }}>
             <div className="venue-row">
               <div className="venue-main">
-                <strong>People count</strong>
-                <span>Unique identities in the selected window</span>
-              </div>
-              <span className="badge badge--neutral">{hourDetail.people}</span>
-            </div>
-            <div className="venue-row">
-              <div className="venue-main">
-                <strong>Authorized pass-through</strong>
-                <span>Successful recognized entries</span>
+                <strong>Authorized</strong>
+                <span>Recognized entries</span>
               </div>
               <span className="badge badge--authorized">{hourDetail.authorized}</span>
             </div>
             <div className="venue-row">
               <div className="venue-main">
-                <strong>Risk events</strong>
-                <span>Unauthorized and unknown detections</span>
+                <strong>Unauthorized</strong>
+                <span>Access denied</span>
               </div>
-              <span className="badge badge--unauthorized">{hourDetail.unauthorized + hourDetail.unknown}</span>
+              <span className="badge badge--unauthorized">{hourDetail.unauthorized}</span>
+            </div>
+            <div className="venue-row">
+              <div className="venue-main">
+                <strong>Unknown</strong>
+                <span>Unidentified faces</span>
+              </div>
+              <span className="badge badge--unknown">{hourDetail.unknown}</span>
             </div>
           </div>
         </article>
@@ -261,30 +272,22 @@ export default function AnalyticsPage() {
       <section className="card">
         <div className="card-header">
           <div>
-            <p className="eyebrow">Daily volume</p>
-            <h2 className="card-title">Detection pattern across the last 7 days</h2>
+            <p className="eyebrow">7-day view</p>
+            <h2 className="card-title">Daily detection volume</h2>
           </div>
           <div className="chart-legend">
-            <span className="legend-chip" style={{ color: "#1f9d74" }}>Authorized</span>
-            <span className="legend-chip" style={{ color: "#cb4d4d" }}>Flagged</span>
+            <span className="legend-chip" style={{ color: "#171717" }}>Authorized</span>
+            <span className="legend-chip" style={{ color: "#a3a3a3" }}>Flagged</span>
           </div>
         </div>
-
-        <div className="chart-wrap" style={{ marginTop: 20 }}>
+        <div className="chart-wrap" style={{ marginTop: 16 }}>
           <Bar
             data={dailyBarData}
             options={{
-              ...CHART_OPTIONS,
+              ...BASE_OPTIONS,
               scales: {
-                x: {
-                  stacked: false,
-                  grid: { display: false },
-                  ticks: { color: "#64748b" },
-                },
-                y: {
-                  grid: { color: "rgba(20, 32, 51, 0.08)" },
-                  ticks: { color: "#64748b" },
-                },
+                ...BASE_OPTIONS.scales,
+                x: { ...BASE_OPTIONS.scales.x, grid: { display: false }, border: { display: false } },
               },
             }}
           />
